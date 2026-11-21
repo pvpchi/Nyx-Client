@@ -10,9 +10,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      - name: Setup Java
+      - name: Setup Java 21
         uses: actions/setup-java@v5
         with:
           java-version: '21'
@@ -22,19 +23,24 @@ jobs:
         run: |
           unzip -q github_nyxsoft.zip -d project
           ROOT=$(find project -name settings.gradle -print -quit | xargs dirname)
-          echo "PROJECT_DIR=$ROOT" >> $GITHUB_ENV
+          if [ -z "$ROOT" ]; then
+            echo "ERROR: settings.gradle not found!"
+            exit 1
+          fi
+          echo "PROJECT_DIR=$ROOT" >> "$GITHUB_ENV"
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
         with:
-          gradle-version: '8.10.2'
+          gradle-version: '8.11'
 
       - name: Build NyxSoft
         run: |
           cd "$PROJECT_DIR"
-          gradle build
+          gradle build --no-daemon
 
       - name: Upload JAR
+        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: NyxSoft-JAR
