@@ -14,13 +14,14 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
           
-      - name: Setup Gradle
+      - name: Make gradlew executable
+        run: chmod +x gradlew
+
+      - name: Build with Gradle
         uses: gradle/actions/setup-gradle@v3
         with:
           gradle-version: '8.10.2'
-
-      - name: Build with Gradle
-        run: gradle build --no-daemon
+          arguments: build --no-daemon
         
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
